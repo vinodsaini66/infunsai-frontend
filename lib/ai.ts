@@ -5,11 +5,11 @@ import { generateText } from "ai"
 const gemini = google("gemini-2.5-flash")
 
 export interface ContentGenerationParams {
-  userType: "job-seeker" | "aspiring-influencer"
+  userType: "influencer" | "job-seeker" | "aspiring-influencer" | string
   industry?: string
   topic?: string
   tone?: "professional" | "casual" | "engaging" | "thought-leadership"
-  contentType?: "post" | "article" | "hook" | "question"
+  content_type?: "post" | "article" | "hook" | "question"
   targetAudience?: string
 }
 
@@ -26,7 +26,7 @@ export async function generateLinkedInContent(params: ContentGenerationParams): 
     industry = "technology",
     topic,
     tone = "professional",
-    contentType = "post",
+    content_type = "post",
     targetAudience,
   } = params
 
@@ -41,7 +41,7 @@ export async function generateLinkedInContent(params: ContentGenerationParams): 
        Content should be compelling, authentic, and encourage engagement.`
 
   // Build user prompt
-  const userPrompt = `Create a LinkedIn ${contentType} for a ${userType} in the ${industry} industry.
+  const userPrompt = `Create a LinkedIn ${content_type} for a ${userType} in the ${industry} industry.
     ${topic ? `Topic: ${topic}` : ""}
     ${targetAudience ? `Target audience: ${targetAudience}` : ""}
     Tone: ${tone}

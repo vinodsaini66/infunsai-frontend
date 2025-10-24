@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge"
 interface ScheduledPost {
   id: string
   content: string
-  scheduledTime: Date
+  schedule_at: Date
   status: "scheduled" | "published" | "failed"
-  contentType: "post" | "article" | "poll"
+  content_type: "post" | "article" | "poll"
   hashtags: string[]
   visibility: "public" | "connections" | "followers"
 }
@@ -48,7 +48,7 @@ export function ScheduledPostCard({ post, onEdit, onDelete }: ScheduledPostCardP
     }
   }
 
-  const isOverdue = post.status === "scheduled" && post.scheduledTime < new Date()
+  const isOverdue = post.status === "scheduled" && post.schedule_at < new Date()
 
   return (
     <Card className={`${isOverdue ? "border-orange-200 bg-orange-50" : ""}`}>
@@ -58,7 +58,7 @@ export function ScheduledPostCard({ post, onEdit, onDelete }: ScheduledPostCardP
             {/* Header */}
             <div className="flex items-center space-x-2">
               <Badge className={getStatusColor(post.status)}>{post.status}</Badge>
-              <Badge variant="outline">{post.contentType}</Badge>
+              <Badge variant="outline">{post.content_type}</Badge>
               <div className="flex items-center text-sm text-slate-500">
                 {getVisibilityIcon(post.visibility)}
                 <span className="ml-1 capitalize">{post.visibility}</span>
@@ -85,7 +85,7 @@ export function ScheduledPostCard({ post, onEdit, onDelete }: ScheduledPostCardP
             <div className="flex items-center space-x-4 text-sm text-slate-500">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                {post.scheduledTime.toLocaleDateString("en-US", {
+                {post.schedule_at.toLocaleDateString("en-US", {
                   weekday: "short",
                   month: "short",
                   day: "numeric",
@@ -94,7 +94,7 @@ export function ScheduledPostCard({ post, onEdit, onDelete }: ScheduledPostCardP
               </div>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
-                {post.scheduledTime.toLocaleTimeString("en-US", {
+                {post.schedule_at.toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
                 })}

@@ -11,11 +11,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 
 interface ScheduledPost {
-  id: string
+  id?: string
   content: string
-  scheduledTime: Date
-  status: "scheduled" | "published" | "failed"
-  contentType: "post" | "article" | "poll"
+  schedule_at: Date
+  status?: "scheduled" | "published" | "failed"
+  content_type: "post" | "article" | "poll"
   hashtags: string[]
   visibility: "public" | "connections" | "followers"
 }
@@ -28,8 +28,8 @@ interface ScheduleFormProps {
 
 export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
   const [content, setContent] = useState("")
-  const [scheduledTime, setScheduledTime] = useState("")
-  const [contentType, setContentType] = useState<"post" | "article" | "poll">("post")
+  const [schedule_at, setScheduledTime] = useState("")
+  const [content_type, setContentType] = useState<"post" | "article" | "poll">("post")
   const [hashtags, setHashtags] = useState<string[]>([])
   const [hashtagInput, setHashtagInput] = useState("")
   const [visibility, setVisibility] = useState<"public" | "connections" | "followers">("public")
@@ -37,8 +37,8 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
   useEffect(() => {
     if (post) {
       setContent(post.content)
-      setScheduledTime(post.scheduledTime.toISOString().slice(0, 16))
-      setContentType(post.contentType)
+      setScheduledTime(post.schedule_at.toISOString().slice(0, 16))
+      setContentType(post.content_type)
       setHashtags(post.hashtags)
       setVisibility(post.visibility)
     } else {
@@ -64,12 +64,12 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!content.trim() || !scheduledTime) return
+    if (!content.trim() || !schedule_at) return
 
     onSubmit({
       content: content.trim(),
-      scheduledTime: new Date(scheduledTime),
-      contentType,
+      schedule_at: new Date(schedule_at),
+      content_type,
       hashtags,
       visibility,
     })
@@ -77,6 +77,7 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
 
   const getOptimalTimes = () => {
     const now = new Date()
+    //@ts-ignore
     const times = []
 
     // Add some optimal posting times
@@ -96,6 +97,7 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
       })
     }
 
+    //@ts-ignore
     return times.slice(0, 6)
   }
 
@@ -135,7 +137,7 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
                   <Button
                     key={type}
                     type="button"
-                    variant={contentType === type ? "default" : "outline"}
+                    variant={content_type === type ? "default" : "outline"}
                     size="sm"
                     onClick={() => setContentType(type)}
                   >
@@ -211,11 +213,11 @@ export function ScheduleForm({ post, onSubmit, onCancel }: ScheduleFormProps) {
 
             {/* Scheduled Time */}
             <div className="space-y-2">
-              <Label htmlFor="scheduledTime">Scheduled Time</Label>
+              <Label htmlFor="schedule_at">Scheduled Time</Label>
               <input
                 type="datetime-local"
-                id="scheduledTime"
-                value={scheduledTime}
+                id="schedule_at"
+                value={schedule_at}
                 onChange={(e) => setScheduledTime(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
                 required

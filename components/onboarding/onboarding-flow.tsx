@@ -64,7 +64,7 @@ export function OnboardingFlow() {
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong")
       }
-
+  
       toast({
         title: "Goal updated successfully!",
         description: "Your goal has been updated.",

@@ -14,18 +14,20 @@ import { useToast } from "@/hooks/use-toast"
 import { useAIContent } from "@/hooks/use-ai-content"
 import { Sparkles, Loader2 } from "lucide-react"
 import type { ContentGenerationParams, GeneratedContent } from "@/lib/ai"
+import { useUser } from "@/context/user-context"
 
 interface ContentFormProps {
   onContentGenerated: (content: GeneratedContent) => void
 }
 
 export function ContentForm({ onContentGenerated }: ContentFormProps) {
+   const { user} = useUser()
   const [formData, setFormData] = useState<ContentGenerationParams>({
-    userType: "job-seeker",
+    userType: user?.account_type || "job-seeker",
     industry: "technology",
     topic: "",
     tone: "professional",
-    contentType: "post",
+    content_type: "post",
     targetAudience: "",
   })
 
@@ -68,7 +70,7 @@ export function ContentForm({ onContentGenerated }: ContentFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* User Type Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card
           className={`cursor-pointer transition-all hover:shadow-md ${
             formData.userType === "job-seeker" ? "ring-2 ring-primary bg-primary/5" : ""
@@ -92,7 +94,7 @@ export function ContentForm({ onContentGenerated }: ContentFormProps) {
             <CardDescription className="text-xs">Engaging content to grow your audience</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </div> */}
 
       {/* Content Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -118,8 +120,8 @@ export function ContentForm({ onContentGenerated }: ContentFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contentType">Content Type</Label>
-          <Select value={formData.contentType} onValueChange={(value) => updateFormData("contentType", value)}>
+          <Label htmlFor="content_type">Content Type</Label>
+          <Select value={formData.content_type} onValueChange={(value) => updateFormData("content_type", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select content type" />
             </SelectTrigger>
@@ -177,7 +179,7 @@ export function ContentForm({ onContentGenerated }: ContentFormProps) {
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">{formData.userType === "job-seeker" ? "Job Seeker" : "Aspiring Influencer"}</Badge>
           <Badge variant="outline">{formData.industry}</Badge>
-          <Badge variant="outline">{formData.contentType}</Badge>
+          <Badge variant="outline">{formData.content_type}</Badge>
           <Badge variant="outline">{formData.tone}</Badge>
         </div>
       </div>

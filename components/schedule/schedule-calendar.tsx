@@ -9,9 +9,9 @@ import { Card, CardContent } from "@/components/ui/card"
 interface ScheduledPost {
   id: string
   content: string
-  scheduledTime: Date
+  schedule_at: Date
   status: "scheduled" | "published" | "failed"
-  contentType: "post" | "article" | "poll"
+  content_type: "post" | "article" | "poll"
   hashtags: string[]
   visibility: "public" | "connections" | "followers"
 }
@@ -35,7 +35,7 @@ export function ScheduleCalendar({ posts, onEditPost, onDeletePost }: ScheduleCa
 
   const getPostsForDate = (date: Date) => {
     return posts.filter((post) => {
-      const postDate = new Date(post.scheduledTime)
+      const postDate = new Date(post.schedule_at)
       return postDate.toDateString() === date.toDateString()
     })
   }
@@ -92,7 +92,7 @@ export function ScheduleCalendar({ posts, onEditPost, onDeletePost }: ScheduleCa
                       }
                       className="text-xs px-1 py-0"
                     >
-                      {post.contentType}
+                      {post.content_type}
                     </Badge>
                     <div className="opacity-0 group-hover:opacity-100 flex space-x-1">
                       <Button
@@ -120,7 +120,7 @@ export function ScheduleCalendar({ posts, onEditPost, onDeletePost }: ScheduleCa
                     </div>
                   </div>
                   <div className="truncate text-slate-600">
-                    {post.scheduledTime.toLocaleTimeString("en-US", {
+                    {post.schedule_at.toLocaleTimeString("en-US", {
                       hour: "numeric",
                       minute: "2-digit",
                     })}

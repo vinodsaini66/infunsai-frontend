@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get("linkedin_access_token")?.value
     console.log({ accessToken });
-    
+
     if (!accessToken) {
       return NextResponse.json({
         connected: false,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Calendar, Clock, Plus, Filter, Grid, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,13 +8,15 @@ import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { ScheduleCalendar } from "./schedule-calendar"
 import { ScheduleForm } from "./schedule-form"
 import { ScheduledPostCard } from "./scheduled-post-card"
+import { useToast } from "@/hooks/use-toast";
+import { log } from "console"
 
 interface ScheduledPost {
   id: string
   content: string
-  scheduledTime: Date
+  schedule_at: Date
   status: "scheduled" | "published" | "failed"
-  contentType: "post" | "article" | "poll"
+  content_type: "post" | "article" | "poll"
   hashtags: string[]
   visibility: "public" | "connections" | "followers"
 }
@@ -25,6 +27,42 @@ export function ScheduleManager() {
   const [editingPost, setEditingPost] = useState<ScheduledPost | null>(null)
   const [filter, setFilter] = useState<"all" | "scheduled" | "published" | "failed">("all")
   const [view, setView] = useState<"calendar" | "list">("calendar")
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+
+  const getScheduledPosts = async () => {
+    setIsLoading(true)
+
+    try {
+      const res = await fetch("/api/app/post/scheduled", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong")
+      }
+      console.log("Scheduled posts data:", data);
+
+      setScheduledPosts(data.data)
+    } catch (error: any) {
+      toast({
+        title: "Failed to fetch scheduled posts",
+        description: error.message || "Something went wrong",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+
+  // useEffect(() => {
+  //   getScheduledPosts()
+  // }, [])
 
   useEffect(() => {
     // Load scheduled posts from localStorage
@@ -32,7 +70,7 @@ export function ScheduleManager() {
     if (saved) {
       const posts = JSON.parse(saved).map((post: any) => ({
         ...post,
-        scheduledTime: new Date(post.scheduledTime),
+        schedule_at: new Date(post.schedule_at),
       }))
       setScheduledPosts(posts)
     } else {
@@ -42,9 +80,9 @@ export function ScheduleManager() {
           id: "1",
           content:
             "Excited to share my latest insights on AI in the workplace! 🚀 The future of work is here, and it's more collaborative than ever.",
-          scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+          schedule_at: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
           status: "scheduled",
-          contentType: "post",
+          content_type: "post",
           hashtags: ["#AI", "#FutureOfWork", "#Innovation"],
           visibility: "public",
         },
@@ -52,9 +90,9 @@ export function ScheduleManager() {
           id: "2",
           content:
             "Just published a comprehensive guide on LinkedIn growth strategies. Check it out and let me know your thoughts!",
-          scheduledTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          schedule_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
           status: "scheduled",
-          contentType: "article",
+          content_type: "article",
           hashtags: ["#LinkedIn", "#Growth", "#ContentStrategy"],
           visibility: "connections",
         },
@@ -62,9 +100,9 @@ export function ScheduleManager() {
           id: "3",
           content:
             "What's your biggest challenge in content creation? A) Time management B) Ideas C) Consistency D) Engagement",
-          scheduledTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          schedule_at: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
           status: "published",
-          contentType: "poll",
+          content_type: "poll",
           hashtags: ["#ContentCreation", "#Poll"],
           visibility: "public",
         },
@@ -73,6 +111,7 @@ export function ScheduleManager() {
       localStorage.setItem("scheduledPosts", JSON.stringify(mockPosts))
     }
   }, [])
+
 
   const saveScheduledPosts = (posts: ScheduledPost[]) => {
     setScheduledPosts(posts)
@@ -108,11 +147,11 @@ export function ScheduleManager() {
   const filteredPosts = scheduledPosts.filter((post) => filter === "all" || post.status === filter)
 
   const upcomingPosts = scheduledPosts.filter(
-    (post) => post.status === "scheduled" && post.scheduledTime > new Date(),
+    (post) => post.status === "scheduled" && post.schedule_at > new Date(),
   ).length
 
   const publishedToday = scheduledPosts.filter(
-    (post) => post.status === "published" && new Date(post.scheduledTime).toDateString() === new Date().toDateString(),
+    (post) => post.status === "published" && new Date(post.schedule_at).toDateString() === new Date().toDateString(),
   ).length
 
   return (

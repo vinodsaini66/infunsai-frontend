@@ -33,7 +33,7 @@ export class LinkedInAPI {
   }
 
   async getProfile(): Promise<LinkedInProfile> {
-    const response = await fetch("https://api.linkedin.com/v2/people/~", {
+    const response = await fetch("https://api.linkedin.com/v2/me", {
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
         "Content-Type": "application/json",
@@ -143,7 +143,8 @@ export async function exchangeCodeForToken(
 ): Promise<{
   access_token: string
   expires_in: number
-  refresh_token?: string
+  refresh_token?: string,
+  linkedin_id: string
 }> {
   const response = await fetch(linkedInConfig.tokenUrl, {
     method: "POST",
@@ -165,4 +166,16 @@ export async function exchangeCodeForToken(
   }
 
   return response.json()
+}
+
+function parseLinkedInProfile(data:any): LinkedInProfile {
+  return {
+    id: data.id || "",
+    firstName: data.localizedFirstName || data.firstName?.localized?.en_US || "",
+    lastName: data.localizedLastName || data.lastName?.localized?.en_US || "",
+    headline: data.localizedHeadline || data.headline?.localized?.en_US || "",
+    summary: data.summary || "",
+    industry: data.industryName || data.industry || "",
+    profilePicture: data.profilePicture?.displayImage || ""
+  }
 }

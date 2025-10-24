@@ -25,7 +25,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
   const { status, postToLinkedIn, isPosting } = useLinkedIn()
 
   const handleEdit = () => {
-    setEditedContent(content.content)
+    setEditedContent(content?.content ?? "")
     setIsEditing(true)
   }
 
@@ -38,6 +38,13 @@ export function ContentPreview({ content }: ContentPreviewProps) {
   }
 
   const handleCopy = () => {
+    if (!content) {
+      toast({
+        title: "No content to copy",
+        description: "Please generate or select content before copying.",
+      })
+      return
+    }
     const fullContent = `${isEditing ? editedContent : content.content}\n\n${content.hashtags.map((tag) => `#${tag}`).join(" ")}`
     navigator.clipboard.writeText(fullContent)
     toast({
@@ -47,6 +54,13 @@ export function ContentPreview({ content }: ContentPreviewProps) {
   }
 
   const handlePostToLinkedIn = async () => {
+    if (!content) {
+      toast({
+        title: "No content to post",
+        description: "Please generate or select content before posting.",
+      })
+      return
+    }
     const contentToPost = `${isEditing ? editedContent : content.content}\n\n${content.hashtags.map((tag) => `#${tag}`).join(" ")}`
     await postToLinkedIn(contentToPost, visibility)
   }
@@ -63,7 +77,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
     setShowScheduleForm(false)
     toast({
       title: "Post scheduled successfully",
-      description: `Your post has been scheduled for ${new Date(postData.scheduledTime).toLocaleString()}`,
+      description: `Your post has been scheduled for ${new Date(postData.schedule_at).toLocaleString()}`,
     })
   }
 
@@ -72,7 +86,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
     setShowScheduleForm(true)
   }
 
-  const displayContent = isEditing ? editedContent : content.content
+  const displayContent = isEditing ? editedContent : content?.content ?? ""
 
   return (
     <div className="space-y-6">
@@ -107,9 +121,9 @@ export function ContentPreview({ content }: ContentPreviewProps) {
                 <span className="text-primary font-semibold">
                   {status.profile?.name
                     ? status.profile.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
                     : "JD"}
                 </span>
               </div>
@@ -131,7 +145,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
             )}
 
             <div className="flex flex-wrap gap-1 mb-4">
-              {content.hashtags.map((hashtag, index) => (
+              {content?.hashtags?.map((hashtag, index) => (
                 <span key={index} className="text-blue-600 text-sm">
                   #{hashtag}
                 </span>
@@ -160,7 +174,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
         </CardContent>
       </Card>
 
-      {content.cta && (
+      {content?.cta && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Call to Action</CardTitle>
@@ -174,7 +188,7 @@ export function ContentPreview({ content }: ContentPreviewProps) {
         </Card>
       )}
 
-      {content.suggestions && content.suggestions.length > 0 && (
+      {content?.suggestions && content.suggestions.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">AI Suggestions</CardTitle>
@@ -249,10 +263,11 @@ export function ContentPreview({ content }: ContentPreviewProps) {
           onCancel={() => setShowScheduleForm(false)}
           post={{
             content: `${displayContent}\n\n${content.hashtags.map((tag) => `#${tag}`).join(" ")}`,
-            scheduledTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
-            contentType: "post",
+            schedule_at: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
+            content_type: "post",
             hashtags: content.hashtags.map((tag) => `#${tag}`),
             visibility: visibility.toLowerCase() as "public" | "connections",
+
           }}
         />
       )}

@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Button, Checkbox, Form, Input, Typography } from "antd";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation"
+import { useUser } from "@/context/user-context";
 
 const { Link } = Typography;
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { setUser } = useUser()
 
   const router = useRouter()
   const handleSubmit = async (values: any) => {
@@ -35,6 +37,14 @@ export function LoginForm() {
         description: "Welcome back to LinkedinAI.",
       })
 
+      localStorage.setItem("user", JSON.stringify(data.user))
+      setUser(data.user)
+
+      if (data?.user?.is_linkedin_connected) {
+        // router.push("/dashboard")
+        router.push("/generate")
+        return
+      }
       router.push("/onboarding")
     } catch (error: any) {
       toast({

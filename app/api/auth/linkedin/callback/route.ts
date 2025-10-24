@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { exchangeCodeForToken } from "@/lib/linkedin"
 import { cookies } from "next/headers"
+import { saveTokenToServer } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
 
     // Exchange code for access token
     const tokenData = await exchangeCodeForToken(code, state)
+    const res = await saveTokenToServer(tokenData.access_token,
+       tokenData.linkedin_id, tokenData.refresh_token,tokenData.expires_in)
 
     // Store access token in secure cookie
     cookieStore.set("linkedin_access_token", tokenData.access_token, {
