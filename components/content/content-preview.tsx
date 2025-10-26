@@ -18,6 +18,7 @@ interface ContentPreviewProps {
 
 export function ContentPreview({ content }: ContentPreviewProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [scheduling, setScheduling] = useState(false)
   const [editedContent, setEditedContent] = useState("")
   const [visibility, setVisibility] = useState<"PUBLIC" | "CONNECTIONS">("PUBLIC")
   const [showScheduleForm, setShowScheduleForm] = useState(false)
@@ -65,16 +66,47 @@ export function ContentPreview({ content }: ContentPreviewProps) {
     await postToLinkedIn(contentToPost, visibility)
   }
 
-  const handleSchedulePost = (postData: any) => {
+  const handleSchedulePost = async (postData: any) => {
     const existingPosts = JSON.parse(localStorage.getItem("scheduledPosts") || "[]")
+    setScheduling(true)
     const newPost = {
       ...postData,
       id: Date.now().toString(),
       status: "scheduled",
     }
+    
     localStorage.setItem("scheduledPosts", JSON.stringify([...existingPosts, newPost]))
 
-    setShowScheduleForm(false)
+     try {
+      const res = await fetch("/api/app/post/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPost),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong")
+      }
+
+      toast({
+        title: "Post created successfully!",
+        description: "Your post has been created successfully.",
+      })
+
+      setShowScheduleForm(false) 
+    } catch (error: any) {
+      toast({
+        title: "Failed to create Post",
+        description: error.message || "Something went wrong",
+      })
+    } finally {
+      setScheduling(false)
+      setShowScheduleForm(false) 
+    }
     toast({
       title: "Post scheduled successfully",
       description: `Your post has been scheduled for ${new Date(postData.schedule_at).toLocaleString()}`,

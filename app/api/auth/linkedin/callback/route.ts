@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/onboarding?error=missing_parameters`)
     }
     console.log("Received code and state:", { code, state });
-    
+
 
     // Verify state parameter
     const cookieStore = await cookies()
@@ -32,15 +32,20 @@ export async function GET(request: NextRequest) {
 
     // Exchange code for access token
     const tokenData = await exchangeCodeForToken(code, state)
-    const res = await saveTokenToServer(tokenData.access_token,
-       tokenData.linkedin_id, tokenData.refresh_token,tokenData.expires_in)
+    console.log("Token data received:", tokenData);
 
+    try {
+      await saveTokenToServer(tokenData?.access_token, tokenData?.linkedin_id, tokenData?.refresh_token, tokenData?.expires_in)
+    } catch (error) {
+      console.error("Failed to save token:", error)
+    }
+    
     // Store access token in secure cookie
-    cookieStore.set("linkedin_access_token", tokenData.access_token, {
+    cookieStore.set("linkedin_access_token", tokenData?.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: tokenData.expires_in,
+      maxAge: tokenData?.expires_in,
     })
 
     // Clear state cookie
