@@ -41,8 +41,8 @@ export function LoginForm() {
       setUser(data.user)
 
       if (data?.user?.is_linkedin_connected) {
-        // router.push("/dashboard")
-        router.push("/generate")
+        router.push("/dashboard")
+        // router.push("/generate")
         return
       }
       router.push("/onboarding")

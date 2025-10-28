@@ -27,18 +27,20 @@ export function ContentGenerator() {
             <Sparkles className="w-4 h-4" />
             <span>Generate</span>
           </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center space-x-2">
-            <FileText className="w-4 h-4" />
-            <span>Preview</span>
-          </TabsTrigger>
-          <TabsTrigger value="ideas" className="flex items-center space-x-2">
+          {generatedContent &&
+            <TabsTrigger value="preview" className="flex items-center space-x-2">
+              <FileText className="w-4 h-4" />
+              <span>Preview</span>
+            </TabsTrigger>
+          }
+          {/* <TabsTrigger value="ideas" className="flex items-center space-x-2">
             <Lightbulb className="w-4 h-4" />
             <span>Ideas</span>
           </TabsTrigger>
           <TabsTrigger value="timing" className="flex items-center space-x-2">
             <Clock className="w-4 h-4" />
             <span>Timing</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="generate" className="space-y-6">
@@ -58,17 +60,17 @@ export function ContentGenerator() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="preview" className="space-y-6">
+        {generatedContent && <TabsContent value="preview" className="space-y-6">
           <ContentPreview content={generatedContent} />
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="ideas" className="space-y-6">
+        {/* <TabsContent value="ideas" className="space-y-6">
           <ContentIdeas />
         </TabsContent>
 
         <TabsContent value="timing" className="space-y-6">
           <TimingOptimizer />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   )
